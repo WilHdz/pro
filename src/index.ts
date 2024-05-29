@@ -5,8 +5,8 @@ import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import router from './Routes/routes';
 import cors from 'cors'; 
-import { obtenerProductos } from './Models/ProductosModelo';
-import { crearProducto } from './Models/ProductosModelo';
+import { obtenerProductos, crearProducto } from './Models/ProductosModelo'; // Importa las funciones relacionadas con los productos
+import { obtenerTransacciones, crearTransaccion } from './Models/TransaccionesModelo'; // Importa las funciones relacionadas con las transacciones
 import EventEmitter from 'events';
 
 dotenv.config();
@@ -25,14 +25,49 @@ app.use(bodyParser.json());
 
 app.use('/api', router);
 
+// Rutas para productos
+
+// Obtener todos los productos
 app.get('/api/productos', async (req, res) => {
   const productos = await obtenerProductos();
   res.status(200).json(productos);
 });
 
+// Crear un nuevo producto
+app.post('/api/productos', async (req, res) => {
+  const { nombre, descripcion, precio, cantidad } = req.body;
+  try {
+    await crearProducto({ nombre, descripcion, precio, cantidad });
+    res.status(201).json({ message: 'Producto creado exitosamente' });
+  } catch (error) {
+    console.error('Error al crear producto:', error);
+    res.status(500).json({ error: 'Error al crear producto' });
+  }
+});
+
+// Rutas para transacciones
+
+// Obtener todas las transacciones
+app.get('/api/transacciones', async (req, res) => {
+  const transacciones = await obtenerTransacciones();
+  res.status(200).json(transacciones);
+});
+
+// Crear una nueva transacción
+app.post('/api/transacciones', async (req, res) => {
+  const { tipo, id_producto, cantidad } = req.body;
+  try {
+    await crearTransaccion({ tipo, id_producto, cantidad });
+    res.status(201).json({ message: 'Transacción creada exitosamente' });
+  } catch (error) {
+    console.error('Error al crear transacción:', error);
+    res.status(500).json({ error: 'Error al crear transacción' });
+  }
+});
+
 // Short Polling
 app.get('/api/short-polling', async (req, res) => {
-  console.log("solicitud recibidaa short-polling");
+  console.log("solicitud recibida short-polling");
   const productos = await obtenerProductos();
   res.status(200).json(productos);
 });
@@ -68,11 +103,10 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-
-
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+
 wss.on('connection', (ws) => {
   console.log('Cliente conectado');
 

@@ -8,8 +8,8 @@ const router: Router = express.Router();
 router.post('/productos', createProducto);
 router.get('/productos', getProductos);
 
-router.post('/transacciones', createTransaccion);
-router.get('/transacciones', getTransacciones);
+router.post('/Transacciones', createTransaccion);
+router.get('/Transacciones', getTransacciones);
 
 router.post('/usuarios', createUsuario);
 router.get('/usuarios', findAll);
